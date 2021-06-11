@@ -3,7 +3,11 @@ const app = express();
 
 const { NotFoundError } = require('./expressErrors');
 
+const locationsRoutes = require('./routes/locations');
+
 app.use(express.json());
+
+app.use('/locations', locationsRoutes);
 
 /** Handle 404 errors -- this matches everything */
 app.use(function (req, res, next) {

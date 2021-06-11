@@ -1,7 +1,7 @@
 const { Client } = require("pg");
 
 const db = new Client({
-  connectionString: "rickllow"
+  connectionString: process.env.DATABASE_URL || "postgresql:///rickllow"
 });
 
 db.connect();

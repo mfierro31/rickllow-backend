@@ -1,36 +1,27 @@
 const express = require("express");
 
-const { BadRequestError } = require("../expressError");
+const { BadRequestError } = require("../expressErrors");
 
 const router = new express.Router();
 
+const Location = require("../models/location");
+
 /** GET /  =>
- *   { locations: [ { handle, name, description, numEmployees, logoUrl }, ...] }
+ *   { locations: [ { name, cost, alt_cost_curr, alt_cost_amt, image }, ...] }
  *
- * Can filter on provided search filters:
- * - minEmployees
- * - maxEmployees
- * - name (will find case-insensitive, partial matches)
+ * Can filter on the query param search-term.  Whatever is passed in as the search-term, we will look to see
+ * if that is included in each location's name, type, or dimension
  *
  * Authorization required: none
  */
 
- router.get("/", async function (req, res, next) {
-  const q = req.query;
-  // arrive as strings from querystring, but we want as ints
-  if (q.minEmployees !== undefined) q.minEmployees = +q.minEmployees;
-  if (q.maxEmployees !== undefined) q.maxEmployees = +q.maxEmployees;
-
+ router.get("/", async function (req, res, next) {  
   try {
-    const validator = jsonschema.validate(q, companySearchSchema);
-    if (!validator.valid) {
-      const errs = validator.errors.map(e => e.stack);
-      throw new BadRequestError(errs);
-    }
-
-    const companies = await Company.findAll(q);
-    return res.json({ companies });
+    const locations = await Location.getAll(req.query.search_term);
+    return res.json({ locations });
   } catch (err) {
     return next(err);
   }
 });
+
+module.exports = router;
