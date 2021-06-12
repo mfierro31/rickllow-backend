@@ -27,8 +27,8 @@ router.get("/", async function (req, res, next) {
 /** GET /[name]  =>  { location }
  *
  *  Location is { name, type, dimension, description, cost, alt_cost_curr, alt_cost_amt, neighborhood, images, reviews, agent }
- *   where images is [ name, ...], 
- *   reviews is [ { id, text, user_id }, ... ],
+ *   where images is [ image_name, ...], 
+ *   reviews is [ { id, text, user_username }, ... ],
  *   and agent is { name, image }
  *
  * Authorization required: none
