@@ -15,10 +15,29 @@ const Location = require("../models/location");
  * Authorization required: none
  */
 
- router.get("/", async function (req, res, next) {  
+router.get("/", async function (req, res, next) {  
   try {
     const locations = await Location.getAll(req.query.search_term);
     return res.json({ locations });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/** GET /[name]  =>  { location }
+ *
+ *  Location is { name, type, dimension, description, cost, alt_cost_curr, alt_cost_amt, neighborhood, images, reviews, agent }
+ *   where images is [ name, ...], 
+ *   reviews is [ { id, text, user_id }, ... ],
+ *   and agent is { name, image }
+ *
+ * Authorization required: none
+ */
+
+router.get("/:name", async function (req, res, next) {
+  try {
+    const location = await Location.get(req.params.name);
+    return res.json({ location });
   } catch (err) {
     return next(err);
   }

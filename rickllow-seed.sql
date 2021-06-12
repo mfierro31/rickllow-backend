@@ -507,3 +507,13 @@ VALUES ('earth_c_137.jpeg', 'Earth (C-137)'),
        ('dimension_35C_scary_monster.jpeg', 'Dimension 35-C'),
        ('dimension_35C_exploring.jpeg', 'Dimension 35-C'),
        ('dimension_35C_body_parts_blob.png', 'Dimension 35-C');
+
+INSERT INTO users (username)
+VALUES ('rocker_morty'),
+       ('greasy_rick');
+
+INSERT INTO reviews (text, user_username, location_name)
+VALUES ('President Morty is the best, bro!  He personally greeted me on my visit to the Citadel and offered me a good-paying job if I moved there!  Totally doing it now!',
+        'rocker_morty', 'Citadel of Ricks'),
+       ('Well, President Morty might not be my flask of liquor, but damn it I''m impressed by this place.  It''s really been cleaned up.  I''m seriously thinking of moving here now.',
+        'greasy_rick', 'Citadel of Ricks');

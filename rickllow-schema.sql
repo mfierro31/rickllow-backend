@@ -1,6 +1,5 @@
 CREATE TABLE users (
-  id SERIAL PRIMARY KEY,
-  username TEXT NOT NULL
+  username TEXT PRIMARY KEY
 );
 
 -- NICE TO HAVE version of users
@@ -36,21 +35,21 @@ CREATE TABLE location_images (
 );
 
 CREATE TABLE favorites (
-  user_id INTEGER NOT NULL REFERENCES users,
+  user_username TEXT NOT NULL REFERENCES users,
   location_name TEXT NOT NULL REFERENCES locations,
-  PRIMARY KEY (user_id, location_name)
+  PRIMARY KEY (user_username, location_name)
 );
 
 CREATE TABLE viewings (
   id SERIAL PRIMARY KEY,
   location_name TEXT NOT NULL REFERENCES locations,
-  user_id INTEGER NOT NULL REFERENCES users,
+  user_username TEXT NOT NULL REFERENCES users,
   date TEXT NOT NULL
 );
 
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY,
   text TEXT NOT NULL,
-  user_id INTEGER NOT NULL REFERENCES users,
+  user_username TEXT NOT NULL REFERENCES users,
   location_name TEXT NOT NULL REFERENCES locations
 );

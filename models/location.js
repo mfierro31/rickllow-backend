@@ -41,7 +41,38 @@ class Location {
     }
 
     return result.rows;                     
-  } 
+  }
+
+  static async get(name) {
+    const result = await db.query(`
+          SELECT l.name,
+                 l.type,
+                 l.dimension,
+                 l.description,
+                 l.cost,
+                 l.alt_cost_curr,
+                 l.alt_cost_amt,
+                 l.neighborhood,
+                 JSON_AGG(i.name) AS images,
+                 CASE WHEN COUNT(r.id) = 0 THEN JSON '[]' ELSE
+                   JSON_AGG(JSON_BUILD_OBJECT('id', r.id, 'text', r.text, 'user_username', r.user_username)) END AS reviews,
+                 JSON_BUILD_OBJECT('name', a.name, 'image', a.image) AS agent
+          FROM locations AS l
+            LEFT JOIN agents AS a ON l.agent_name = a.name
+            LEFT JOIN location_images AS i ON l.name = i.location_name
+            LEFT JOIN reviews AS r ON l.name = r.location_name
+          WHERE l.name = $1
+          GROUP BY l.name, a.name
+    `, [name]);
+
+    const location = result.rows[0];
+
+    if (!location) {
+      throw new NotFoundError(`No location found with name of '${name}'`);
+    }
+
+    return location;
+  }
 }
 
 module.exports = Location;
