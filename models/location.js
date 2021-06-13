@@ -107,7 +107,7 @@ class Location {
 
   static async getAllByCategory(category) {
     // This method gives us back same info as getAll, but takes in a different filter: category.
-    // This is for some of the frontend pre-filtered routes - planets, space stations, dimensions, and misc (everything else).
+    // This is for some of the frontend pre-filtered routes - planets, space stations, dimensions, and misc/everything else.
     // For planets, space stations, and misc, we filter locations by their type property.  With dimensions, it's a lot more
     // complicated, so we just give back all locations without a filter and do the filtering (it's not really filtering as much
     // as re-organizing) on the frontend.

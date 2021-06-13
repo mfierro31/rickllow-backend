@@ -1,9 +1,5 @@
 const express = require("express");
-
-const { BadRequestError } = require("../expressErrors");
-
 const router = new express.Router();
-
 const Location = require("../models/location");
 
 /** GET /  =>
