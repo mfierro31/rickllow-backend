@@ -104,6 +104,71 @@ class Location {
     //                JSON_AGG(JSON_BUILD_OBJECT('id', r.id, 'text', r.text, 'user_username', r.user_username)) END AS reviews,
     // LEFT JOIN reviews AS r ON l.name = r.location_name
   }
+
+  static async getAllByCategory(category) {
+    // This method gives us back same info as getAll, but takes in a different filter: category.
+    // This is for some of the frontend pre-filtered routes - planets, space stations, dimensions, and misc (everything else).
+    // For planets, space stations, and misc, we filter locations by their type property.  With dimensions, it's a lot more
+    // complicated, so we just give back all locations without a filter and do the filtering (it's not really filtering as much
+    // as re-organizing) on the frontend.
+    const validCategories = ['planets', 'space-stations', 'dimensions', 'misc'];
+
+    if (!validCategories.includes(category)) {
+      throw new BadRequestError(`No such category: ${category}`);
+    }
+
+    let result;
+
+    if (category === 'planets' || category === 'space-stations' || category === 'misc') {
+      let whereClause = 'WHERE l.type ';
+
+      if (category === 'planets') {
+        whereClause += "= 'Planet'";
+      }
+
+      if (category === 'space-stations') {
+        whereClause += "= 'Space Station'";
+      }
+
+      if (category === 'misc') {
+        whereClause += "!= 'Planet' AND l.type != 'Space Station'"
+      }
+
+      result = await db.query(`
+               SELECT l.name,
+                      l.cost,
+                      l.alt_cost_curr,
+                      l.alt_cost_amt,
+                      (SELECT name FROM location_images AS i 
+                      WHERE i.location_name = l.name 
+                      LIMIT 1) AS image
+                  FROM locations AS l
+                    LEFT JOIN location_images AS i ON i.location_name = l.name
+                  ${whereClause}
+                  GROUP BY
+                    l.name
+                  ORDER BY
+                    l.name`);
+    } else {
+      result = await db.query(`
+               SELECT l.name,
+                      l.dimension,
+                      l.cost,
+                      l.alt_cost_curr,
+                      l.alt_cost_amt,
+                      (SELECT name FROM location_images AS i 
+                        WHERE i.location_name = l.name 
+                        LIMIT 1) AS image
+              FROM locations AS l
+                LEFT JOIN location_images AS i ON i.location_name = l.name
+              GROUP BY
+                l.name
+              ORDER BY
+                l.name`);
+    }
+
+    return result.rows;
+  }
 }
 
 module.exports = Location;

@@ -24,7 +24,7 @@ router.get("/", async function (req, res, next) {
   }
 });
 
-/** GET /[name]  =>  { location }
+/** GET /:name  =>  { location }
  *
  *  Location is { name, type, dimension, description, cost, alt_cost_curr, alt_cost_amt, neighborhood, images, reviews, agent }
  *   where images is [ image_name, ...], 
@@ -38,6 +38,25 @@ router.get("/:name", async function (req, res, next) {
   try {
     const location = await Location.get(req.params.name);
     return res.json({ location });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/** GET /categories/:category  =>  [ { location }, ... ]
+ *
+ *  Location is going to be minimal info again for the location Cards on the frontend
+ *   { name, cost, alt_cost_curr, alt_cost_amt, image }
+ *   If :category is 'dimensions', we'll add the dimension property to the location object and return all locations so we can 
+ *   re-organize the data by dimensions on the frontend.
+ *
+ * Authorization required: none
+ */
+
+ router.get("/categories/:category", async function (req, res, next) {
+  try {
+    const locations = await Location.getAllByCategory(req.params.category.toLowerCase());
+    return res.json({ locations });
   } catch (err) {
     return next(err);
   }
