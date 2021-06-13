@@ -63,16 +63,32 @@ class Location {
     // and agent is { name, image }
 
     const locationResult = await db.query(`
-          SELECT l.name,
-                 l.type,
-                 l.dimension,
-                 l.description,
-                 l.cost,
-                 l.alt_cost_curr,
-                 l.alt_cost_amt,
-                 l.neighborhood,
-                 JSON_AGG(i.name) AS images,
-                 JSON_BUILD_OBJECT('name', a.name, 'image', a.image) AS agent
+          SELECT 
+            l.name,
+            l.type,
+            l.dimension,
+            l.description,
+            l.cost,
+            l.alt_cost_curr,
+            l.alt_cost_amt,
+            l.neighborhood,
+            JSON_AGG(i.name) AS images,
+            JSON_BUILD_OBJECT('name', a.name, 'image', a.image) AS agent,
+            (
+              SELECT 
+                CASE 
+                  WHEN count(reviews_by_location.text) = 0 then JSON '[]' 
+                  ELSE JSON_AGG(reviews_by_location.text) 
+                END AS reviews_aggregated
+              FROM 
+                (
+                  SELECT 
+                  r.text
+                  FROM reviews AS r
+                    LEFT JOIN locations AS l ON l.name = r.location_name
+                  WHERE l.name = $1
+                ) reviews_by_location
+            ) AS reviews
           FROM locations AS l
             LEFT JOIN agents AS a ON l.agent_name = a.name
             LEFT JOIN location_images AS i ON l.name = i.location_name
@@ -86,15 +102,15 @@ class Location {
       throw new NotFoundError(`No location found with name of '${name}'`);
     }
 
-    const reviewsResult = await db.query(`
-          SELECT id,
-                 text,
-                 user_username
-          FROM reviews
-          WHERE location_name = $1
-    `, [name]);
+    // const reviewsResult = await db.query(`
+    //       SELECT id,
+    //              text,
+    //              user_username
+    //       FROM reviews
+    //       WHERE location_name = $1
+    // `, [name]);
 
-    location.reviews = reviewsResult.rows;
+    // location.reviews = reviewsResult.rows;
 
     return location;
     // While I'm currently getting the reviews with a separate query, I know there has to be a way that I can get them in the 
