@@ -78,12 +78,13 @@ class Location {
               SELECT 
                 CASE 
                   WHEN count(reviews_by_location.text) = 0 then JSON '[]' 
-                  ELSE JSON_AGG(reviews_by_location.text) 
+                  ELSE JSON_AGG(JSON_BUILD_OBJECT('user_username', reviews_by_location.user_username, 'review', reviews_by_location.text)) 
                 END AS reviews_aggregated
               FROM 
                 (
                   SELECT 
-                  r.text
+                  r.text,
+                  r.user_username
                   FROM reviews AS r
                     LEFT JOIN locations AS l ON l.name = r.location_name
                   WHERE l.name = $1
