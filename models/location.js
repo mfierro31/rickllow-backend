@@ -78,11 +78,14 @@ class Location {
               SELECT 
                 CASE 
                   WHEN count(reviews_by_location.text) = 0 then JSON '[]' 
-                  ELSE JSON_AGG(JSON_BUILD_OBJECT('user_username', reviews_by_location.user_username, 'review', reviews_by_location.text)) 
+                  ELSE JSON_AGG(JSON_BUILD_OBJECT('id', reviews_by_location.id, 
+                                'user_username', reviews_by_location.user_username, 
+                                'text', reviews_by_location.text))
                 END AS reviews_aggregated
               FROM 
                 (
-                  SELECT 
+                  SELECT
+                  r.id, 
                   r.text,
                   r.user_username
                   FROM reviews AS r
@@ -103,23 +106,7 @@ class Location {
       throw new NotFoundError(`No location found with name of '${name}'`);
     }
 
-    // const reviewsResult = await db.query(`
-    //       SELECT id,
-    //              text,
-    //              user_username
-    //       FROM reviews
-    //       WHERE location_name = $1
-    // `, [name]);
-
-    // location.reviews = reviewsResult.rows;
-
     return location;
-    // While I'm currently getting the reviews with a separate query, I know there has to be a way that I can get them in the 
-    // first query.  These are the parts of the first query I took out because they were messing things up.
-    // When a location had reviews, it would duplicate the images and reviews data and I can't figure out how to fix that.
-    // CASE WHEN COUNT(r.id) = 0 THEN JSON '[]' ELSE
-    //                JSON_AGG(JSON_BUILD_OBJECT('id', r.id, 'text', r.text, 'user_username', r.user_username)) END AS reviews,
-    // LEFT JOIN reviews AS r ON l.name = r.location_name
   }
 
   static async getAllByCategory(category) {
