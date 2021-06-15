@@ -62,6 +62,23 @@ class Location {
     // reviews is [ { id, text, user_username }, ... ],
     // and agent is { name, image }
 
+    // This query below was quite complex when it came to getting location reviews.  At first, I tried left joining reviews with 
+    // locations, where reviews.location_name = locations.name and then, in my select statement, tried to do:
+
+    // CASE 
+    //   WHEN COUNT(r.id) = 0 then JSON '[]' 
+    //   ELSE JSON_AGG(JSON_BUILD_OBJECT('id', r.id, 
+    //                 'user_username', r.user_username, 
+    //                 'text', r.text))
+    // END AS reviews
+
+    // But, for some reason, whenever a location had reviews, this would mess things up.  First, it would make the images
+    // duplicate once, and for the reviews, each review would get duplicated by however many distinct images there were.
+
+    // So, instead, we had to create two nested subqueries to get this right.  First, in our subquery's FROM statement, we had
+    // to select all but one column of the reviews table where the location name matched the reviews location_name.  Once we
+    // had that as our from table, our complex JSON_AGG(JSON_BUILD_OBJECT()) functions worked and performed correctly with no
+    // duplicates
     const locationResult = await db.query(`
           SELECT 
             l.name,

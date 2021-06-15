@@ -6,6 +6,8 @@ const { NotFoundError } = require('./expressErrors');
 
 const locationsRoutes = require('./routes/locations');
 
+// CORS allows our backend to communicate with our frontend and vice versa.  Otherwise, we'll get an error in the browser every
+// time our frontend requests something from our backend, saying Cross Origin Resource Sharing not allowed.
 app.use(cors());
 app.use(express.json());
 
